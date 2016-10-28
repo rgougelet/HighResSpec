@@ -10,7 +10,7 @@ nyq = sampleRate/2;
 sampleSpacing = 1/sampleRate;
 phaseOffsets = 0:(pi/6):2*pi; % hard coded
 dataLengthGens = 1:11; % hard coded, 11 data lengths
-dataLengths = (0.05*2.^dataLengthGens); % in seconds hard coded
+dataLengthSecs = (0.05*2.^dataLengthGens); % in seconds hard coded
 % plot(dataLengths, 'o')
 nfft = 100*sampleRate;
 
@@ -22,11 +22,11 @@ run_welch = 0;
 if run_fft
 	dataLength_errors = [];
 	dataLength_rts = [];
-	for dataLengthSecs = dataLengths;
+	for dataLengthSec = dataLengthSecs;
 		phaseOffset_errors = [];
 		phaseOffset_rts = [];
 		for phaseOffset = phaseOffsets;
-			dataLengthSamples = dataLengthSecs*sampleRate;
+			dataLengthSamples = dataLengthSec*sampleRate;
 			[osc1,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
 			osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
 			data = osc1+osc2;
@@ -60,9 +60,9 @@ if run_fft
 	%%
 	close all
 	figure;
-	plot(dataLengths,max(dataLength_errors,[],2)); % for each datalength, what's the maximum error over phaseoffsets
+	plot(dataLengthSecs,max(dataLength_errors,[],2)); % for each datalength, what's the maximum error over phaseoffsets
 	figure;
-	plot(dataLengths,max(dataLength_rts,[],2)); % for each datalength, what's the maximum runtime over phaseoffsets
+	plot(dataLengthSecs,max(dataLength_rts,[],2)); % for each datalength, what's the maximum runtime over phaseoffsets
 	figure;
 	plot(phaseOffsets,dataLength_errors'); % plots errors over phaseOffsets for each dataLength
 end
@@ -84,7 +84,7 @@ if run_welch
 		% Store error for each windowlength
 	% Store error for data length
 
-	for dataLengthSecs = dataLengths % defined for all methods at the top
+	for dataLengthSecs = dataLengthSecs % defined for all methods at the top
 		dataLengthSamples = dataLengthSecs*sampleRate
 		windowLength_errors = []; % length equal to length(dls_wls)
 		windowLength_rts = []; % length equal to length(dls_wls)
@@ -123,7 +123,7 @@ if run_welch
 	save('welch_rts.mat','dataLength_rts');
 	close all
 	figure;
-	plot(dataLengths,dataLength_errors);
+	plot(dataLengthSecs,dataLength_errors);
 end
 
 

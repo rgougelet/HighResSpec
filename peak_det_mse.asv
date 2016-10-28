@@ -6,10 +6,12 @@ function [errPerm, Freqs] = peak_det_mse( freq, amp, target )
 IndexFreq= I((end-length(target)+1):end); % Retrieves the top n = length(target) amplitude indices
 Freqs = round(freq(IndexFreq),2); % Finds corresponding freqs for top amplitude indices
 permFreqs = perms(Freqs); % The amplitudes are less relevant, so look at all possible orderings based on amp
+errs = zeros(1,length(permFreqs)); % Stores MSE for each permutation
 targets = repmat(target,length(target),1);
 errs = round(permFreqs - targets,6);
 errs_mse= mean((errs).^2,2);
 errPerm = min(errs_mse); % Returns the error for the most accurate permutation
+
 end
 
 %% trash
