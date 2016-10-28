@@ -1,4 +1,4 @@
-function [voltageSamples, instAmp, instPhase, instFreq, instNoise] = chan_osc(dataLengthSamples, sampleRate, oscCenter, varargin)
+function [voltageSamples, t, instAmp, instPhase, instFreq, instNoise] = chan_osc(dataLengthSamples, sampleRate, oscCenter, varargin)
 
     %TODO: optional time output
     % open help if no arguments provided

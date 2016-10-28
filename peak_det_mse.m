@@ -11,7 +11,7 @@ for row = 1:length(permFreqs)
     errs(row) = mean((permFreqs(row,:)-target).^2); %Subtracts permutated max amp freqs from target freqs
 end
 errs = round(errs,6);
-errPerm = min(errs); % Returns the error for the most accurate permutation
+errPerm = max(errs); % Returns the error for the most accurate permutation
 
 end
 

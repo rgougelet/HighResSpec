@@ -8,19 +8,19 @@ oscCenter2 = 10.56; % hard coded
 sampleRate = 1000; % hard coded
 nyq = sampleRate/2;
 sampleSpacing = 1/sampleRate;
-phaseOffsets = 0:(pi/6):2*pi; % hard coded
+phaseOffsets = 0:(pi/4):2*pi; % hard coded
 dataLengthGens = 1:11; % hard coded, 11 data lengths
 dataLengths = (0.05*2.^dataLengthGens); % in seconds hard coded
 % plot(dataLengths, 'o')
 nfft = 100*sampleRate;
 
 %% Run params
-run_fft = 1;
-run_welch = 0;
+run_fft = 0;
+run_pwelch = 1;
 
 %% FFT
 if run_fft
-	dataLength_errors = [];
+	dataLength_errors= [];
 	dataLength_rts = [];
 	for dataLengthSecs = dataLengths;
 		phaseOffset_errors = [];
@@ -78,7 +78,7 @@ if run_welch
 	% For each data length 11
 		% For each windowlength 7
 			% For each nOverlap 7
-				% For each phaseoffset 13
+				% For each phaseoffset 
 				% Store error for each phaseoffset
 			% Store error for each nOverlap
 		% Store error for each windowlength
@@ -88,7 +88,7 @@ if run_welch
 		dataLengthSamples = dataLengthSecs*sampleRate
 		windowLength_errors = []; % length equal to length(dls_wls)
 		windowLength_rts = []; % length equal to length(dls_wls)
-		windowLengthsSamples = windowLengthPercs*dataLengthSamples;
+		windowLengthsSamples = 128:128:dataLengthSamples;
 
 		for windowLengthSamples = windowLengthsSamples;
 			phaseOffset_errors = [];
@@ -125,9 +125,6 @@ if run_welch
 	figure;
 	plot(dataLengths,dataLength_errors);
 end
-
-
-
 %%
 close all
 figure;
