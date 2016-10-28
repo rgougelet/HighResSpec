@@ -27,9 +27,10 @@ if run_fft
 		phaseOffset_rts = [];
 		for phaseOffset = phaseOffsets;
 			dataLengthSamples = dataLengthSec*sampleRate;
-			[osc1,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
+			[osc1,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset, 'isNoisy', 1, 'snr', 10);
 			osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
 			data = osc1+osc2;
+			plot(data)
 			fft_freqs = linspace(0,nyq,floor(nfft/2)+1);
 
 			tic
@@ -42,10 +43,10 @@ if run_fft
 			phaseOffset_errors = [phaseOffset_errors phaseOffset_error];
 			phaseOffset_rts = [phaseOffset_rts phaseOffset_rt];
 
-			%     plot(fft_f,2*abs(dataX))
-			%     xlim([10.5 10.56])
-			%     ylabel('Amplitude')
-			%     title(['Data Length = ', num2str(fft_dls),' sec'])
+			    plot(fft_freqs,2*abs(dataX))
+% 			    xlim([10.5 10.56])
+			    ylabel('Amplitude')
+			    title(['Data Length = ', num2str(dataLengthSec),' sec'])
 			%     pause(0.5)
 		end
 
@@ -60,7 +61,8 @@ if run_fft
 	%%
 	close all
 	figure;
-	plot(dataLengthSecs,max(dataLength_errors,[],2)); % for each datalength, what's the maximum error over phaseoffsets
+	plot(dataLengthSecs,max(dataLength_errors,[],2)./0.0002); % for each datalength, what's the maximum error over phaseoffsets
+	title('FFT')
 	figure;
 	plot(dataLengthSecs,max(dataLength_rts,[],2)); % for each datalength, what's the maximum runtime over phaseoffsets
 	figure;
@@ -129,8 +131,8 @@ end
 
 
 %%
-close all
-figure;
+% close all
+% figure;
 % plot(fft_errors);
 %plot(fft_dls,fft_errors);
 %hold on; plot(welch_dls,welch_errors);
