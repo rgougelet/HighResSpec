@@ -1,6 +1,10 @@
-function [errPerm, Freqs] = peak_det_mse( freq, amp, target )
+function [errPerm, Freqs] = peak_det_mse( freq, amp, target, bounds_inds)
 % This function detects peak amplitudes in the spectrum based on however
 % many targets you give it
+lowfbound_ind = bounds_inds(1);
+highfbound_ind = bounds_inds(2);
+freq = freq(lowfbound_ind:highfbound_ind);
+amp = amp(lowfbound_ind:highfbound_ind);
 
 [Y, I]=sort(amp); % Sort amplitudes along with indices
 IndexFreq= I((end-length(target)+1):end); % Retrieves the top n = length(target) amplitude indices

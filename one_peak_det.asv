@@ -4,7 +4,7 @@ close all
 
 %% two oscillation's frequency parameters
 oscCenter1 = 10.54; % hard coded 
-oscCenter2 = 10.56; % hard coded
+% oscCenter2 = 10.56; % hard coded
 sampleRate = 1000; % hard coded
 nyq = sampleRate/2;
 sampleSpacing = 1/sampleRate;
@@ -29,6 +29,14 @@ windowLengthPercs = (5:10:75)./100;
 overlapPercs = (10:10:70)./100;
 
 %% Run params
+% run_fft = 1;
+% run_welch = 1;
+% run_med_welch = 1;
+% run_music = 1;
+% run_esprit = 1;
+% run_burg = 1;
+% run_mem = 1;
+% run_envlp = 1;
 run_fft = 0;
 run_welch = 0;
 run_med_welch = 0;
@@ -36,7 +44,8 @@ run_music = 0;
 run_esprit = 0;
 run_envlp = 0;
 run_burg = 0;
-run_mem = 1;
+run_mem = 0;
+
 
 %% FFT
 if run_fft
@@ -204,8 +213,7 @@ if run_music
 	
 	save('music_errors_two.mat','music_errors');
 	save('music_rts_two.mat','music_rts');
-	music_run = toc(start_music);
-	['Music runtime:', num2str(music_run)]
+	['Music runtime:', num2str(med_welch_run)]
 end
 
 %% eSPRIT
