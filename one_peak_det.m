@@ -39,10 +39,10 @@ overlapPercs = (10:10:70)./100;
 % run_envlp = 1;
 run_fft = 0;
 run_welch = 0;
-run_med_welch = 0;
+run_med_welch = 1;
 run_music = 0;
 run_esprit = 0;
-run_envlp = 1;
+run_envlp = 0;
 run_burg = 0;
 run_mem = 0;
 

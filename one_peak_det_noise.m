@@ -39,10 +39,10 @@ overlapPercs = (10:10:70)./100;
 % run_envlp = 1;
 run_fft = 0;
 run_welch = 0;
-run_med_welch = 0;
+run_med_welch = 1;
 run_music = 0;
 run_esprit = 0;
-run_envlp = 1;
+run_envlp = 0;
 run_burg = 0;
 run_mem = 0;
 
@@ -55,7 +55,7 @@ if run_fft
 		phaseOffset_errors = [];
 		phaseOffset_rts = [];
 		for phaseOffset = phaseOffsets;
-			[data,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
+			[data,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy');
 			fft_freqs = linspace(0,nyq,floor(nfft/2)+1);
 
 			tic
