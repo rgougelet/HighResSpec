@@ -42,7 +42,7 @@ run_welch = 0;
 run_med_welch = 0;
 run_music = 0;
 run_esprit = 0;
-run_envlp = 1;
+run_envlp = 0;
 run_burg = 0;
 run_mem = 0;
 
@@ -263,7 +263,7 @@ end
 if run_envlp
     radii = 0.9:0.01:0.99;
     nneigs = 8:16;
-	start_envlp = tic;
+	start_envl = tic;
 	dataLength_errors = zeros(length(dataLengthSecs),length(phaseOffsets), ...
         length(nneigs),length(radii));
 	dataLength_rts = zeros(length(dataLengthSecs),length(phaseOffsets), ...
