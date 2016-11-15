@@ -41,8 +41,8 @@ run_fft = 0;
 run_welch = 0;
 run_med_welch = 0;
 run_music = 0;
-run_esprit = 1;
-run_envlp = 0;
+run_esprit = 0;
+run_envlp = 1;
 run_burg = 0;
 run_mem = 0;
 
@@ -265,16 +265,13 @@ if run_envlp
 		phaseOffset_rts = [];
 		for phaseOffset = phaseOffsets;
 			phaseOffset
-			[osc1,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
-			osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
-			data = osc1+osc2;
+			data = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
 			neigs_errors = [];
 			neigs_rts = [];
 			for neigs = 8:16
 				radius_errors = [];
 				radius_rts = [];
 				for radius = 0.9:0.01:0.99
-% 					[num2str(dataLengthSamples),', ',num2str(phaseOffset),', ',num2str(radius),', ',num2str(neigs)]
 					tic
 					[A,B] = cjordan(neigs,radius*exp(thetamid*1i));
 					R = dlsim_complex(A,B,data); %needs row vector
@@ -283,8 +280,7 @@ if run_envlp
  					rho = rhohalf.^2; %if actually want power, do this
 					
 					radius_rt = toc;
-% 					radius_error = peak_det_mse(focal_freqs,rho,[oscCenter1,oscCenter2]);
-					radius_error = peak_det_mse(focal_freqs,rho,[oscCenter1,oscCenter2], [1,length(focal_th)]);
+					radius_error = peak_det_mse(focal_freqs,rho,oscCenter1, [1,length(focal_th)]);
 					
 					radius_errors = cat(1,radius_errors, radius_error);
 					radius_rts = cat(1,radius_rts, radius_rt);
@@ -325,23 +321,17 @@ if run_burg
 			phaseOffset_rts = [];
 			for phaseOffset = phaseOffsets;
 				dataLengthSamples = dataLengthSec*sampleRate;
-				[osc1,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
-				osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
-				data = osc1+osc2;
-
+				data = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
 				tic
 				[S,freqs] = pburg(data,order,nfft,sampleRate, 'onesided');
 				phaseOffset_rt = toc;
-
-				phaseOffset_error = peak_det_mse(freqs,S,[oscCenter1,oscCenter2], [1000,1100]);
-
+				phaseOffset_error = peak_det_mse(freqs,S,oscCenter1, [1000,1100]);
 				phaseOffset_errors = cat(1,phaseOffset_errors,phaseOffset_error);
 				phaseOffset_rts = cat(1,phaseOffset_rts, phaseOffset_rt);
 			end
 			order_errors = cat(2,order_errors,phaseOffset_errors);
 			order_rts = cat(2,order_rts, phaseOffset_rts);
 		end
-		% (length(dataLength_errors)) x (length(phaseOffsets)) matrices
 		dataLength_errors = cat(3,dataLength_errors, order_errors);
 		dataLength_rts = cat(3,dataLength_rts, order_rts);
 	end
@@ -360,7 +350,7 @@ if run_mem
 	dataLength_errors = [];
 	dataLength_rts = [];
 	for dataLengthSec = dataLengthSecs
-		dataLengthSec
+		dataLengthSamples = dataLengthSec*sampleRate
 		order_errors = [];
 		order_rts = [];
 		orders = 2:10;
@@ -368,24 +358,17 @@ if run_mem
 			phaseOffset_errors = [];
 			phaseOffset_rts = [];
 			for phaseOffset = phaseOffsets;
-				dataLengthSamples = dataLengthSec*sampleRate;
-				[osc1,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
-				osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
-				data = osc1+osc2;
-
+				data = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
 				tic
 				[S,freqs] = pmem(data,order,nfft,sampleRate, 'onesided');
 				phaseOffset_rt = toc;
-
-				phaseOffset_error = peak_det_mse(freqs,S,[oscCenter1,oscCenter2], [1000,1100]);
-
+				phaseOffset_error = peak_det_mse(freqs,S,oscCenter1, [1000,1100]);
 				phaseOffset_errors = cat(1,phaseOffset_errors,phaseOffset_error);
 				phaseOffset_rts = cat(1,phaseOffset_rts, phaseOffset_rt);
 			end
 			order_errors = cat(2,order_errors,phaseOffset_errors);
 			order_rts = cat(2,order_rts, phaseOffset_rts);
 		end
-		% (length(dataLength_errors)) x (length(phaseOffsets)) matrices
 		dataLength_errors = cat(3,dataLength_errors, order_errors);
 		dataLength_rts = cat(3,dataLength_rts, order_rts);
 	end
