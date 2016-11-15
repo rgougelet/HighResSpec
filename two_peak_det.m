@@ -2,24 +2,19 @@ clear
 clc
 close all
 
-%% two oscillation's frequency parameters
+% two oscillation's frequency parameters
 oscCenter1 = 10.54; % hard coded 
 oscCenter2 = 10.56; % hard coded
 sampleRate = 1000; % hard coded
 nyq = sampleRate/2;
 sampleSpacing = 1/sampleRate;
 phaseOffsets = 0:(pi/8):2*pi; % hard coded
-% phaseOffsets = 0;
 nPhaseOffsets = length(phaseOffsets);
-% dataLengthGens = 1:11; % hard coded, 11 data lengths
-% dataLengthGens = 1:0.5:10;
 dataLengthGens = 1:0.5:11;
 dataLengthSecs = round((0.05*2.^dataLengthGens),2); % in seconds hard coded
 nDataLengths = length(dataLengthSecs);
-% plot(dataLengths, 'o')
 nfft = 100*sampleRate;
-
-diffo = mean([oscCenter1,oscCenter2]);
+diffo = oscCenter1;
 thetamid=diffo*2*pi*sampleSpacing;
 th=linspace(0,2*pi,nfft);
 focal_th = th(1000:1100);
@@ -32,10 +27,10 @@ overlapPercs = (10:10:70)./100;
 run_fft = 0;
 run_welch = 0;
 run_med_welch = 0;
-run_music = 0;
-run_esprit = 0;
-run_envlp = 0;
-run_burg = 0;
+run_music = 1;
+run_esprit = 1;
+run_envlp = 1;
+run_burg = 1;
 run_mem = 1;
 
 %% FFT
@@ -43,13 +38,13 @@ if run_fft
 	dataLength_errors = [];
 	dataLength_rts = [];
 	for dataLengthSec = dataLengthSecs;
+		dataLengthSamples = dataLengthSec*sampleRate;
 		phaseOffset_errors = [];
 		phaseOffset_rts = [];
 		for phaseOffset = phaseOffsets;
-			dataLengthSamples = dataLengthSec*sampleRate;
-			[osc1,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
-			osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
-			data = osc1+osc2;
+			osc1 = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
+            osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
+            data = osc1+osc2;
 			fft_freqs = linspace(0,nyq,floor(nfft/2)+1);
 
 			tic
@@ -77,10 +72,13 @@ end
 %% Welch
 if run_welch
 	start_welch = tic;
-	dataLength_errors = []; % length is equal to length(welch_dls)
-	dataLength_rts = []; % length is equal to length(welch_dls)
+	dataLength_errors = zeros(length(dataLengthSecs),length(overlapPercs), ...
+        length(phaseOffsets),length(windowLengthPercs));
+	dataLength_rts = zeros(length(dataLengthSecs),length(overlapPercs), ...
+        length(phaseOffsets),length(windowLengthPercs));
 
-	for dataLengthSec = dataLengthSecs % defined for all methods at the top
+	parfor dataLengthSecInd = 1:length(dataLengthSecs) % defined for all methods at the top
+        dataLengthSec = dataLengthSecs(dataLengthSecInd);
 		dataLengthSamples = dataLengthSec*sampleRate
 		windowLength_errors = []; % length equal to length(dls_wls)
 		windowLength_rts = []; % length equal to length(dls_wls)
@@ -94,8 +92,8 @@ if run_welch
 				nOverlap_errors = [];
 				nOverlap_rts = [];
 				osc1 = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
-				osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
-				data = osc1+osc2;
+                osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
+                data = osc1+osc2;
 				for nOverlap = nOverlaps
 					tic
 					[pow, welch_f] = pwelch(data,windowLengthSamples,nOverlap,nfft,sampleRate, 'power', 'onesided');
@@ -112,10 +110,8 @@ if run_welch
 			windowLength_rts = cat(3,windowLength_rts, phaseOffset_rts);
 		end
 		
-		% creates  nOverlap (7) x  phaseOffset (13) x
-		% windowLength(7) x dataLengthSecs(11)
-		dataLength_errors = cat(4,dataLength_errors, windowLength_errors);
-		dataLength_rts= cat(4,dataLength_rts, windowLength_rts);
+		dataLength_errors(dataLengthSecInd,:,:,:) = windowLength_errors;
+		dataLength_rts(dataLengthSecInd,:,:,:) =  windowLength_rts;
 	end
 	welch_errors = dataLength_errors;
 	welch_rts = dataLength_rts;
@@ -129,9 +125,13 @@ end
 %% Med Welch
 if run_med_welch
 	start_med_welch = tic;
-	dataLength_errors = [];
-	dataLength_rts = [];
-	for dataLengthSec = dataLengthSecs
+	dataLength_errors = zeros(length(dataLengthSecs),length(overlapPercs), ...
+        length(phaseOffsets),length(windowLengthPercs));
+	dataLength_rts = zeros(length(dataLengthSecs),length(overlapPercs), ...
+        length(phaseOffsets),length(windowLengthPercs));
+
+	parfor dataLengthSecInd = 1:length(dataLengthSecs)
+        dataLengthSec = dataLengthSecs(dataLengthSecInd);
 		dataLengthSamples = dataLengthSec*sampleRate
 		windowLength_errors = [];
 		windowLength_rts = [];
@@ -143,9 +143,9 @@ if run_med_welch
 			for phaseOffset = phaseOffsets
 				nOverlap_errors = [];
 				nOverlap_rts = [];
-				osc1 = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
-				osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
-				data = osc1+osc2;
+                osc1 = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
+                osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
+                data = osc1+osc2;
 				for nOverlap = nOverlaps
 					tic
 					[pow, welch_f] = med_pwelch(data,windowLengthSamples,nOverlap,nfft,sampleRate);
@@ -161,8 +161,8 @@ if run_med_welch
 			windowLength_errors = cat(3,windowLength_errors, phaseOffset_errors);
 			windowLength_rts = cat(3,windowLength_rts, phaseOffset_rts);
 		end
-		dataLength_errors = cat(4,dataLength_errors, windowLength_errors);
-		dataLength_rts= cat(4,dataLength_rts, windowLength_rts);
+		dataLength_errors(dataLengthSecInd,:,:,:) = windowLength_errors;
+		dataLength_rts(dataLengthSecInd,:,:,:) =  windowLength_rts;
 	end
 	med_welch_errors = dataLength_errors;
 	med_welch_rts = dataLength_rts;
@@ -179,13 +179,13 @@ if run_music
 	dataLength_errors = [];
 	dataLength_rts = [];
 	for dataLengthSec = dataLengthSecs;
-		dataLengthSamples = dataLengthSec*sampleRate;
+		dataLengthSamples = dataLengthSec*sampleRate
 		phaseOffset_errors = [];
 		phaseOffset_rts = [];
 		for phaseOffset = phaseOffsets;
-			[osc1,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
-			osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
-			data = osc1+osc2;
+			osc1 = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
+            osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
+            data = osc1+osc2;
 			tic
 			[S,freqs] = pmusic(data,4,nfft,sampleRate, 'onesided');
 			phaseOffset_rt = toc;
@@ -193,9 +193,7 @@ if run_music
 			
 			phaseOffset_errors = [phaseOffset_errors phaseOffset_error];
 			phaseOffset_rts = [phaseOffset_rts phaseOffset_rt];
-		end
-		
-		% (length(dataLength_errors)) x (length(phaseOffsets)) matrices
+        end
 		dataLength_errors = [dataLength_errors; phaseOffset_errors];
 		dataLength_rts = [dataLength_rts; phaseOffset_rts];
 	end
@@ -210,38 +208,40 @@ end
 
 %% eSPRIT
 if run_esprit
+    orders = 16:4:48;
 	start_esprit = tic;
-	dataLength_errors = [];
-	dataLength_rts = [];
-	for dataLengthSec = dataLengthSecs;
+	dataLength_errors = zeros(length(dataLengthSecs),length(phaseOffsets), ...
+        length(orders));
+	dataLength_rts = zeros(length(dataLengthSecs),length(phaseOffsets), ...
+        length(orders));
+
+	parfor dataLengthSecInd = 1:length(dataLengthSecs) % defined for all methods at the top
+        dataLengthSec = dataLengthSecs(dataLengthSecInd);
 		dataLengthSamples = dataLengthSec*sampleRate
 		phaseOffset_errors = [];
 		phaseOffset_rts = [];
 		for phaseOffset = phaseOffsets;
-			[osc1,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
-			osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
-			data = osc1+osc2;
+			osc1 = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
+            osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
+            data = osc1+osc2;
 			order_errors = [];
 			order_rts = [];
-			for order = 16:4:48
+			for order = orders
 				tic
 				w=esprit(data,4,order);
 				sorted_w = sort((w/sampleSpacing)/(2*pi),'descend');
 				freqs = sorted_w(1:2);
 				order_rt = toc;
 
-				order_error = peak_det_mse(freqs,[1,1],[oscCenter1,oscCenter2],[1,2]);
-				order_errors = cat(1,order_errors, order_error);
-				order_rts = cat(1,order_rts, order_rt);
+				order_error = peak_det_mse(freqs,[1 1],[oscCenter1,oscCenter2],[1 2]);
+				order_errors = cat(2,order_errors, order_error);
+				order_rts = cat(2,order_rts, order_rt);
 			end
-			phaseOffset_errors = cat(2,phaseOffset_errors, order_errors);
-			phaseOffset_rts = cat(2,phaseOffset_rts, order_rts);
-
-		end
-		
-		% (length(dataLength_errors)) x (length(phaseOffsets)) matrices
-		dataLength_errors = cat(3,dataLength_errors, phaseOffset_errors);
-		dataLength_rts = cat(3,dataLength_rts, phaseOffset_rts);
+			phaseOffset_errors = cat(1,phaseOffset_errors, order_errors);
+			phaseOffset_rts = cat(1,phaseOffset_rts, order_rts);
+        end
+        dataLength_errors(dataLengthSecInd,:,:) = phaseOffset_errors;
+		dataLength_rts(dataLengthSecInd,:,:) =  phaseOffset_rts;
 	end
 	esprit_errors = dataLength_errors;
 	esprit_rts = dataLength_rts;
@@ -254,54 +254,51 @@ end
 
 %% Spectral envelope
 if run_envlp
-	start_envlp = tic;
-	dataLength_errors = [];
-	dataLength_rts = [];
-	for dataLengthSec = dataLengthSecs;
-		dataLengthSamples = dataLengthSec*sampleRate
+    radii = 0.9:0.01:0.99;
+    nneigs = 8:16;
+	start_envl = tic;
+	dataLength_errors = zeros(length(dataLengthSecs),length(phaseOffsets), ...
+        length(nneigs),length(radii));
+	dataLength_rts = zeros(length(dataLengthSecs),length(phaseOffsets), ...
+        length(nneigs),length(radii));
+	parfor dataLengthSecInd = 1:length(dataLengthSecs)
+        dataLengthSec = dataLengthSecs(dataLengthSecInd);
+        dataLengthSamples = dataLengthSec*sampleRate
 		phaseOffset_errors = [];
 		phaseOffset_rts = [];
 		for phaseOffset = phaseOffsets;
 			phaseOffset
-			[osc1,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
-			osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
-			data = osc1+osc2;
-			neigs_errors = [];
+			osc1 = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
+            osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
+            data = osc1+osc2;
+            neigs_errors = [];
 			neigs_rts = [];
-			for neigs = 8:16
+			for neigs = nneigs
 				radius_errors = [];
 				radius_rts = [];
-				for radius = 0.9:0.01:0.99
-% 					[num2str(dataLengthSamples),', ',num2str(phaseOffset),', ',num2str(radius),', ',num2str(neigs)]
+				for radius = radii
 					tic
 					[A,B] = cjordan(neigs,radius*exp(thetamid*1i));
 					R = dlsim_complex(A,B,data); %needs row vector
 					rhofull = envlp(R,A,B,focal_th);
  					rhohalf = rhofull;
  					rho = rhohalf.^2; %if actually want power, do this
-					
 					radius_rt = toc;
-% 					radius_error = peak_det_mse(focal_freqs,rho,[oscCenter1,oscCenter2]);
 					radius_error = peak_det_mse(focal_freqs,rho,[oscCenter1,oscCenter2], [1,length(focal_th)]);
-					
-					radius_errors = cat(1,radius_errors, radius_error);
-					radius_rts = cat(1,radius_rts, radius_rt);
+					radius_errors = cat(4,radius_errors, radius_error);
+					radius_rts = cat(4,radius_rts, radius_rt);
 				end
-				neigs_errors = cat(2,neigs_errors, radius_errors);
-				neigs_rts = cat(2,neigs_rts, radius_rts);
+				neigs_errors = cat(3,neigs_errors, radius_errors);
+				neigs_rts = cat(3,neigs_rts, radius_rts);
 			end
-			phaseOffset_errors = cat(3,phaseOffset_errors, neigs_errors);
-			phaseOffset_rts = cat(3,phaseOffset_rts, neigs_rts);
-
+			phaseOffset_errors = cat(2,phaseOffset_errors, neigs_errors);
+			phaseOffset_rts = cat(2,phaseOffset_rts, neigs_rts);
 		end
-		
-		% (length(dataLength_errors)) x (length(phaseOffsets)) x length(orders) matrices
-		dataLength_errors = cat(4,dataLength_errors, phaseOffset_errors);
-		dataLength_rts = cat(4,dataLength_rts, phaseOffset_rts);
+		dataLength_errors(dataLengthSecInd,:,:,:) = phaseOffset_errors;
+		dataLength_rts(dataLengthSecInd,:,:,:) =  phaseOffset_rts;
 	end
 	envl_errors = dataLength_errors;
 	envl_rts = dataLength_rts;
-	
 	save('envl_errors_two.mat','envl_errors');
 	save('envl_rts_two.mat','envl_rts');
 	envl_run = toc(start_envl);
@@ -310,38 +307,37 @@ end
 
 %% Burg
 if run_burg
-	dataLength_errors = [];
-	dataLength_rts = [];
+    orders = 3:2:25;
+	dataLength_errors = zeros(length(dataLengthSecs),length(orders), ...
+        length(phaseOffsets));
+	dataLength_rts = zeros(length(dataLengthSecs),length(orders), ...
+        length(phaseOffsets));
 	start_burg = tic;
-	for dataLengthSec = dataLengthSecs
-		dataLengthSec
+	parfor dataLengthSecInd = 1:length(dataLengthSecs)
+        dataLengthSec = dataLengthSecs(dataLengthSecInd);
+        dataLengthSamples = dataLengthSec*sampleRate;
 		order_errors = [];
 		order_rts = [];
-		orders = 3:2:25;
 		for order = orders
 			phaseOffset_errors = [];
 			phaseOffset_rts = [];
 			for phaseOffset = phaseOffsets;
 				dataLengthSamples = dataLengthSec*sampleRate;
-				[osc1,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
-				osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
-				data = osc1+osc2;
-
-				tic
+				osc1 = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
+                osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
+                data = osc1+osc2;
+                tic
 				[S,freqs] = pburg(data,order,nfft,sampleRate, 'onesided');
 				phaseOffset_rt = toc;
-
 				phaseOffset_error = peak_det_mse(freqs,S,[oscCenter1,oscCenter2], [1000,1100]);
-
-				phaseOffset_errors = cat(1,phaseOffset_errors,phaseOffset_error);
-				phaseOffset_rts = cat(1,phaseOffset_rts, phaseOffset_rt);
+				phaseOffset_errors = cat(3,phaseOffset_errors,phaseOffset_error);
+				phaseOffset_rts = cat(3,phaseOffset_rts, phaseOffset_rt);
 			end
 			order_errors = cat(2,order_errors,phaseOffset_errors);
 			order_rts = cat(2,order_rts, phaseOffset_rts);
-		end
-		% (length(dataLength_errors)) x (length(phaseOffsets)) matrices
-		dataLength_errors = cat(3,dataLength_errors, order_errors);
-		dataLength_rts = cat(3,dataLength_rts, order_rts);
+        end
+        dataLength_errors(dataLengthSecInd,:,:) = order_errors;
+		dataLength_rts(dataLengthSecInd,:,:) =  order_rts;
 	end
 	burg_errors = dataLength_errors;
 	burg_rts = dataLength_rts;
@@ -358,7 +354,7 @@ if run_mem
 	dataLength_errors = [];
 	dataLength_rts = [];
 	for dataLengthSec = dataLengthSecs
-		dataLengthSec
+		dataLengthSamples = dataLengthSec*sampleRate
 		order_errors = [];
 		order_rts = [];
 		orders = 2:10;
@@ -366,24 +362,19 @@ if run_mem
 			phaseOffset_errors = [];
 			phaseOffset_rts = [];
 			for phaseOffset = phaseOffsets;
-				dataLengthSamples = dataLengthSec*sampleRate;
-				[osc1,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
-				osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
-				data = osc1+osc2;
-
-				tic
+				osc1 = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
+                osc2 = chan_osc(dataLengthSamples, sampleRate,oscCenter2);
+                data = osc1+osc2;
+                tic
 				[S,freqs] = pmem(data,order,nfft,sampleRate, 'onesided');
 				phaseOffset_rt = toc;
-
 				phaseOffset_error = peak_det_mse(freqs,S,[oscCenter1,oscCenter2], [1000,1100]);
-
 				phaseOffset_errors = cat(1,phaseOffset_errors,phaseOffset_error);
 				phaseOffset_rts = cat(1,phaseOffset_rts, phaseOffset_rt);
 			end
 			order_errors = cat(2,order_errors,phaseOffset_errors);
 			order_rts = cat(2,order_rts, phaseOffset_rts);
 		end
-		% (length(dataLength_errors)) x (length(phaseOffsets)) matrices
 		dataLength_errors = cat(3,dataLength_errors, order_errors);
 		dataLength_rts = cat(3,dataLength_rts, order_rts);
 	end
