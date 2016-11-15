@@ -42,7 +42,7 @@ run_welch = 0;
 run_med_welch = 0;
 run_music = 0;
 run_esprit = 0;
-run_envlp = 0;
+run_envlp = 1;
 run_burg = 0;
 run_mem = 0;
 
@@ -293,14 +293,14 @@ if run_envlp
 					radius_rt = toc;
 					radius_error = peak_det_mse(focal_freqs,rho,oscCenter1, [1,length(focal_th)]);
 					
-					radius_errors = cat(1,radius_errors, radius_error);
-					radius_rts = cat(1,radius_rts, radius_rt);
+					radius_errors = cat(4,radius_errors, radius_error);
+					radius_rts = cat(4,radius_rts, radius_rt);
 				end
-				neigs_errors = cat(2,neigs_errors, radius_errors);
-				neigs_rts = cat(2,neigs_rts, radius_rts);
+				neigs_errors = cat(3,neigs_errors, radius_errors);
+				neigs_rts = cat(3,neigs_rts, radius_rts);
 			end
-			phaseOffset_errors = cat(3,phaseOffset_errors, neigs_errors);
-			phaseOffset_rts = cat(3,phaseOffset_rts, neigs_rts);
+			phaseOffset_errors = cat(2,phaseOffset_errors, neigs_errors);
+			phaseOffset_rts = cat(2,phaseOffset_rts, neigs_rts);
 
 		end
 		dataLength_errors(dataLengthSecInd,:,:,:) = phaseOffset_errors;
