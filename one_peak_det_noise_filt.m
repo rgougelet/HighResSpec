@@ -2,7 +2,7 @@ clear
 clc
 close all
 
-%% two oscillation's frequency parameters
+% two oscillation's frequency parameters
 oscCenter1 = 10.55; % hard coded 
 % oscCenter2 = 10.56; % hard coded
 sampleRate = 1000; % hard coded
@@ -23,6 +23,10 @@ focal_freqs = freqs(1000:1100);
 windowLengthPercs = (5:10:75)./100;
 overlapPercs = (10:10:70)./100;
 
+wp = [10 11]/nyq;
+[b,a] = butter(2,wp, 'bandpass');
+% freqz(b,a, 1000,1000)
+
 %% Run params
 run_fft = 0;
 run_welch = 0;
@@ -42,7 +46,8 @@ if run_fft
 		phaseOffset_errors = [];
 		phaseOffset_rts = [];
 		for phaseOffset = phaseOffsets;
-			[data,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
+			[data_unfilt,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
+            data = filtfilt(b,a,double(data_unfilt));
 			fft_freqs = linspace(0,nyq,floor(nfft/2)+1);
 
 			tic
@@ -63,8 +68,8 @@ if run_fft
 
 	fft_errors = dataLength_errors;
 	fft_rts = dataLength_rts;
-	save('fft_errors_one_noise.mat','fft_errors');
-	save('fft_rts_one_noise.mat','fft_rts');
+	save('fft_errors_one_noise_filt.mat','fft_errors');
+	save('fft_rts_one_noise_filt.mat','fft_rts');
 end
 
 %% Welch
@@ -89,8 +94,8 @@ if run_welch
 			for phaseOffset = phaseOffsets % defined for all methods at the top
 				nOverlap_errors = [];
 				nOverlap_rts = [];
-				data = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
-
+				[data_unfilt,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
+                data = filtfilt(b,a,double(data_unfilt));
 				for nOverlap = nOverlaps
 					tic
 					[pow, welch_f] = pwelch(data,windowLengthSamples,nOverlap,nfft,sampleRate, 'power', 'onesided');
@@ -113,8 +118,8 @@ if run_welch
 	welch_errors = dataLength_errors;
 	welch_rts = dataLength_rts;
 
-	save('welch_errors_one_noise.mat','welch_errors');
-	save('welch_rts_one_noise.mat','welch_rts');
+	save('welch_errors_one_noise_filt.mat','welch_errors');
+	save('welch_rts_one_noise_filt.mat','welch_rts');
 	welch_run = toc(start_welch);
 	['Welch runtime:', num2str(welch_run)]
 end
@@ -140,8 +145,8 @@ if run_med_welch
 			for phaseOffset = phaseOffsets
 				nOverlap_errors = [];
 				nOverlap_rts = [];
-				data = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
-
+				[data_unfilt,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
+                data = filtfilt(b,a,double(data_unfilt));
 				for nOverlap = nOverlaps
 					tic
 					[pow, welch_f] = med_pwelch(data,windowLengthSamples,nOverlap,nfft,sampleRate);
@@ -163,8 +168,8 @@ if run_med_welch
 	med_welch_errors = dataLength_errors;
 	med_welch_rts = dataLength_rts;
 
-	save('med_welch_errors_one_noise.mat','med_welch_errors');
-	save('med_welch_rts_one_noise.mat','med_welch_rts');
+	save('med_welch_errors_one_noise_filt.mat','med_welch_errors');
+	save('med_welch_rts_one_noise_filt.mat','med_welch_rts');
 	med_welch_run = toc(start_med_welch);
 	['Med Welch runtime:', num2str(med_welch_run)]
 end
@@ -179,8 +184,8 @@ if run_music
 		phaseOffset_errors = [];
 		phaseOffset_rts = [];
 		for phaseOffset = phaseOffsets;
-			data = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
-			
+			[data_unfilt,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
+            data = filtfilt(b,a,double(data_unfilt));
 			tic
 			[S,freqs] = pmusic(data,2,nfft,sampleRate, 'onesided');
 			phaseOffset_rt = toc;
@@ -195,8 +200,8 @@ if run_music
 	music_errors = dataLength_errors;
 	music_rts = dataLength_rts;
 	
-	save('music_errors_one_noise.mat','music_errors');
-	save('music_rts_one_noise.mat','music_rts');
+	save('music_errors_one_noise_filt.mat','music_errors');
+	save('music_rts_one_noise_filt.mat','music_rts');
 	music_run = toc(start_music);
 	['Music runtime:', num2str(music_run)]
 end
@@ -216,8 +221,8 @@ if run_esprit
 		phaseOffset_errors = [];
 		phaseOffset_rts = [];
 		for phaseOffset = phaseOffsets;
-			data = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
-
+			[data_unfilt,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
+            data = filtfilt(b,a,double(data_unfilt));
 			order_errors = [];
 			order_rts = [];
 			for order = orders
@@ -240,8 +245,8 @@ if run_esprit
 	esprit_errors = dataLength_errors;
 	esprit_rts = dataLength_rts;
 	
-	save('esprit_errors_one_noise.mat','esprit_errors');
-	save('esprit_rts_one_noise.mat','esprit_rts');
+	save('esprit_errors_one_noise_filt.mat','esprit_errors');
+	save('esprit_rts_one_noise_filt.mat','esprit_rts');
 	epsrit_run = toc(start_esprit);
 	['eSPRIT runtime: ', num2str(epsrit_run)]
 end
@@ -262,8 +267,9 @@ if run_envlp
 		phaseOffset_rts = [];
 		for phaseOffset = phaseOffsets;
 			phaseOffset
-			data = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
-			neigs_errors = [];
+			[data_unfilt,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
+            data = filtfilt(b,a,double(data_unfilt));
+            neigs_errors = [];
 			neigs_rts = [];
 			for neigs = nneigs
 				radius_errors = [];
@@ -291,8 +297,8 @@ if run_envlp
 	end
 	envl_errors = dataLength_errors;
 	envl_rts = dataLength_rts;
-	save('envl_errors_one_noise.mat','envl_errors');
-	save('envl_rts_one_noise.mat','envl_rts');
+	save('envl_errors_one_noise_filt.mat','envl_errors');
+	save('envl_rts_one_noise_filt.mat','envl_rts');
 	envl_run = toc(start_envl);
 	['Spectral Envl runtime: ', num2str(envl_run)]
 end
@@ -312,8 +318,9 @@ if run_burg
 			phaseOffset_rts = [];
 			for phaseOffset = phaseOffsets;
 				dataLengthSamples = dataLengthSec*sampleRate;
-				data = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
-				tic
+				[data_unfilt,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
+                data = filtfilt(b,a,double(data_unfilt));
+                tic
 				[S,freqs] = pburg(data,order,nfft,sampleRate, 'onesided');
 				phaseOffset_rt = toc;
 				phaseOffset_error = peak_det_mse(freqs,S,oscCenter1, [1000,1100]);
@@ -329,8 +336,8 @@ if run_burg
 	burg_errors = dataLength_errors;
 	burg_rts = dataLength_rts;
 	
-	save('burg_errors_one_noise.mat','burg_errors');
-	save('burg_rts_one_noise.mat','burg_rts');
+	save('burg_errors_one_noise_filt.mat','burg_errors');
+	save('burg_rts_one_noise_filt.mat','burg_rts');
 	burg_run = toc(start_burg);
 	['Burg runtime: ', num2str(burg_run)]
 end
@@ -349,8 +356,9 @@ if run_mem
 			phaseOffset_errors = [];
 			phaseOffset_rts = [];
 			for phaseOffset = phaseOffsets;
-				data = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
-				tic
+				[data_unfilt,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',1/6);
+                data = filtfilt(b,a,double(data_unfilt));
+                tic
 				[S,freqs] = pmem(data,order,nfft,sampleRate, 'onesided');
 				phaseOffset_rt = toc;
 				phaseOffset_error = peak_det_mse(freqs,S,oscCenter1, [1000,1100]);
@@ -366,8 +374,8 @@ if run_mem
 	mem_errors = dataLength_errors;
 	mem_rts = dataLength_rts;
 	
-	save('mem_errors_one_noise.mat','mem_errors');
-	save('mem_rts_one_noise.mat','mem_rts');
+	save('mem_errors_one_noise_filt.mat','mem_errors');
+	save('mem_rts_one_noise_filt.mat','mem_rts');
 	mem_run = toc(start_mem);
 	['MEM runtime: ', num2str(mem_run)]
 end
