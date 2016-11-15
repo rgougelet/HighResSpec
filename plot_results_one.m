@@ -2,14 +2,14 @@ clear; close all; clc;
 dataLengthGens = 1:0.5:11;
 dataLengthSecs = round((0.05*2.^dataLengthGens),2);
 
-% load fft_errors_one.mat
+load fft_errors_one.mat
 % load welch_errors_one.mat
 % load med_welch_errors_one.mat
-% load music_errors_one.mat
-% load esprit_errors_one.mat
-% load burg_errors_one.mat
-% load mem_errors_one.mat
-% load envl_errors_one.mat
+load music_errors_one.mat
+load esprit_errors_one.mat
+load burg_errors_one.mat
+load mem_errors_one.mat
+load envl_errors_one.mat
 
 % %% FFT
 % min_fft_errors = squeeze(min(fft_errors,[],2));
