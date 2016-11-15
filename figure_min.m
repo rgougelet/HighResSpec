@@ -1,4 +1,4 @@
-function figure_min(X1, Y1, marker, color, method, detect)
+function figure_min(X1, Y1, marker, color, method, detect, measure)
 	%CREATEFIGURE(X1, Y1)
 	%  X1:  vector of x data
 	%  Y1:  vector of y data
@@ -38,10 +38,10 @@ function figure_min(X1, Y1, marker, color, method, detect)
 	set(gca,'XTickLabel',num2str(xt'));
 	def_ax = gca;
 	
-	title([method,' Min Overall Error'], 'FontSize', 22)
+	title([method,' Min Overall ',measure], 'FontSize', 22)
 	ylabel('Mean-Squared Error', 'FontSize', 18)
 	xlabel('Data Length (sec)', 'FontSize', 18)
-	saveas(gcf, [method,'_Min_',detect], 'tif')
+	saveas(gcf, [method,'_Min_',detect,'_',measure], 'tif')
 
 % 	set(findall(figure1, 'type', 'text'), 'FontSize', 40)
 % 	set(findall(figure1, 'type', 'title'), 'FontSize', 24)
