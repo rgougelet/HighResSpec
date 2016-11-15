@@ -168,11 +168,7 @@ function [voltageSamples, t, instAmp, instPhase, instFreq, instNoise] = chan_osc
     % Constructs 1/f noise by taking CDF of normal dist.
     power = noiseStdDev^2;
     normalNoise = wgn(1,dataLengthSamples, power);
-%     if randi([0,1],1)
-        pinkNoise = noiseMean+cumsum(normalNoise);
-%     else
-%         pinkNoise = noiseMean-cumsum(normalNoise);
-%     end
+    pinkNoise = noiseMean+cumsum(normalNoise);
     
     % Constructs signal
     sampleSpacing = 1/sampleRate;

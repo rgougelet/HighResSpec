@@ -8,11 +8,11 @@ oscCenter1 = 10.55; % hard coded
 sampleRate = 1000; % hard coded
 nyq = sampleRate/2;
 sampleSpacing = 1/sampleRate;
-phaseOffsets = 0:(pi/8):2*pi; % hard coded
-% phaseOffsets = 0;
+% phaseOffsets = 0:(pi/8):2*pi; % hard coded
+phaseOffsets = 0;
 nPhaseOffsets = length(phaseOffsets);
-% dataLengthGens = 11;
-dataLengthGens = 1:0.5:11;
+dataLengthGens = 11;
+% dataLengthGens = 1:0.5:11;
 dataLengthSecs = round((0.05*2.^dataLengthGens),2); % in seconds hard coded
 nDataLengths = length(dataLengthSecs);
 nfft = 100*sampleRate;
@@ -53,8 +53,8 @@ if run_fft
 		phaseOffset_errors = [];
 		phaseOffset_rts = [];
 		for phaseOffset = phaseOffsets;
-			[data,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',0.5);
-            plot(t,data);
+			[data,t] = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset,'isNoisy',1,'snr',10);
+            plot(
 			fft_freqs = linspace(0,nyq,floor(nfft/2)+1);
 
 			tic
@@ -62,7 +62,6 @@ if run_fft
 			dataX = dataX(1:length(fft_freqs)); %keep only positive frequencies
 			phaseOffset_rt = toc;
 			amp = 2*abs(dataX);
-            plot(fft_freqs,amp);
 			phaseOffset_error = peak_det_mse(fft_freqs,amp,[oscCenter1], [1000,1100]);
 
 			phaseOffset_errors = [phaseOffset_errors phaseOffset_error];
@@ -76,8 +75,8 @@ if run_fft
 
 	fft_errors = dataLength_errors;
 	fft_rts = dataLength_rts;
-	save('fft_errors_one_noise.mat','fft_errors');
-	save('fft_rts_one_noise.mat','fft_rts');
+	save('fft_errors_one.mat','fft_errors');
+	save('fft_rts_one.mat','fft_rts');
 end
 
 %% Welch
@@ -126,8 +125,8 @@ if run_welch
 	welch_errors = dataLength_errors;
 	welch_rts = dataLength_rts;
 
-	save('welch_errors_one_noise.mat','welch_errors');
-	save('welch_rts_one_noise.mat','welch_rts');
+	save('welch_errors_one.mat','welch_errors');
+	save('welch_rts_one.mat','welch_rts');
 	welch_run = toc(start_welch);
 	['Welch runtime:', num2str(welch_run)]
 end
@@ -176,8 +175,8 @@ if run_med_welch
 	med_welch_errors = dataLength_errors;
 	med_welch_rts = dataLength_rts;
 
-	save('med_welch_errors_one_noise.mat','med_welch_errors');
-	save('med_welch_rts_one_noise.mat','med_welch_rts');
+	save('med_welch_errors_one.mat','med_welch_errors');
+	save('med_welch_rts_one.mat','med_welch_rts');
 	med_welch_run = toc(start_med_welch);
 	['Med Welch runtime:', num2str(med_welch_run)]
 end
@@ -210,8 +209,8 @@ if run_music
 	music_errors = dataLength_errors;
 	music_rts = dataLength_rts;
 	
-	save('music_errors_one_noise.mat','music_errors');
-	save('music_rts_one_noise.mat','music_rts');
+	save('music_errors_one.mat','music_errors');
+	save('music_rts_one.mat','music_rts');
 	music_run = toc(start_music);
 	['Music runtime:', num2str(music_run)]
 end
@@ -253,8 +252,8 @@ if run_esprit
 	esprit_errors = dataLength_errors;
 	esprit_rts = dataLength_rts;
 	
-	save('esprit_errors_one_noise.mat','esprit_errors');
-	save('esprit_rts_one_noise.mat','esprit_rts');
+	save('esprit_errors_one.mat','esprit_errors');
+	save('esprit_rts_one.mat','esprit_rts');
 	epsrit_run = toc(start_esprit);
 	['eSPRIT runtime: ', num2str(epsrit_run)]
 end
@@ -309,8 +308,8 @@ if run_envlp
 	envl_errors = dataLength_errors;
 	envl_rts = dataLength_rts;
 	
-	save('envl_errors_one_noise.mat','envl_errors');
-	save('envl_rts_one_noise.mat','envl_rts');
+	save('envl_errors_one.mat','envl_errors');
+	save('envl_rts_one.mat','envl_rts');
 	envl_run = toc(start_envl);
 	['Spectral Envl runtime: ', num2str(envl_run)]
 end
@@ -347,8 +346,8 @@ if run_burg
 	burg_errors = dataLength_errors;
 	burg_rts = dataLength_rts;
 	
-	save('burg_errors_one_noise.mat','burg_errors');
-	save('burg_rts_one_noise.mat','burg_rts');
+	save('burg_errors_one.mat','burg_errors');
+	save('burg_rts_one.mat','burg_rts');
 	burg_run = toc(start_burg);
 	['Burg runtime: ', num2str(burg_run)]
 end
@@ -384,8 +383,8 @@ if run_mem
 	mem_errors = dataLength_errors;
 	mem_rts = dataLength_rts;
 	
-	save('mem_errors_one_noise.mat','mem_errors');
-	save('mem_rts_one_noise.mat','mem_rts');
+	save('mem_errors_one.mat','mem_errors');
+	save('mem_rts_one.mat','mem_rts');
 	mem_run = toc(start_mem);
 	['MEM runtime: ', num2str(mem_run)]
 end
