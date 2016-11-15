@@ -3,7 +3,7 @@ dataLengthGens = 1:0.5:11;
 dataLengthSecs = round((0.05*2.^dataLengthGens),2);
 
 % load fft_errors_one.mat
-% load welch_errors_one.mat
+load welch_errors_one.mat
 % load med_welch_errors_one.mat
 % load music_errors_one.mat
 % load esprit_errors_one.mat
@@ -19,11 +19,11 @@ dataLengthSecs = round((0.05*2.^dataLengthGens),2);
 % figure_median(dataLengthSecs,med_fft_errors, 'o', [1 0 0], 'FFT', 'one');
 % 
 % %% Welch
-% min_welch_errors = squeeze(min(min(min(welch_errors,[],2))));
-% figure_min(dataLengthSecs,min_welch_errors, 'o', [0 0 1], 'Welch', 'one');
-% 
-% median_welch_errors = squeeze(median(median(median(welch_errors))));
-% figure_median(dataLengthSecs,median_welch_errors, 'o', [1 0 0], 'Welch', 'one');
+min_welch_errors = squeeze(min(min(min(welch_errors,[],4),[],3),[],2));
+figure_min(dataLengthSecs,min_welch_errors, 'o', [0 0 1], 'Welch', 'one');
+
+median_welch_errors = squeeze(median(median(median(welch_errors,4),3),2));
+figure_median(dataLengthSecs,median_welch_errors, 'o', [1 0 0], 'Welch', 'one');
 % 
 % %% Med Welch
 % min_med_welch_errors = squeeze(min(min(min(med_welch_errors,[],2))));

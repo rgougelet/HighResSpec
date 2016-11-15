@@ -261,13 +261,12 @@ end
 
 %% Spectral envelope
 if run_envlp
-    radii = 0.9:0.01:0.99;
-    nneigs = 8:16;
+    
 	start_envlp = tic;
-	dataLength_errors = zeros(length(dataLengthSecs),length(phaseOffsets), ...
-        length(nneigs),length(radii));
-	dataLength_rts = zeros(length(dataLengthSecs),length(phaseOffsets), ...
-        length(nneigs),length(radii));
+	dataLength_errors = zeros(length(dataLengthSecs),length(overlapPercs), ...
+        length(phaseOffsets),length(windowLengthPercs));
+	dataLength_rts = zeros(length(dataLengthSecs),length(overlapPercs), ...
+        length(phaseOffsets),length(windowLengthPercs));
 
 	parfor dataLengthSecInd = 1:length(dataLengthSecs) % defined for all methods at the top
         dataLengthSec = dataLengthSecs(dataLengthSecInd);
@@ -279,7 +278,7 @@ if run_envlp
 			data = chan_osc(dataLengthSamples, sampleRate,oscCenter1,'phaseOffset',phaseOffset);
 			neigs_errors = [];
 			neigs_rts = [];
-			for neigs = nneigs
+			for neigs = 8:16
 				radius_errors = [];
 				radius_rts = [];
 				for radius = radii
