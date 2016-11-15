@@ -39,7 +39,11 @@ function figure_median(X1, Y1, marker, color, method, detect,measure)
 	def_ax = gca;
 	
 	title([method,' Median Overall ',measure], 'FontSize', 22)
-	ylabel('Mean-Squared Error', 'FontSize', 18)
+    if strcmp(measure,'Runtime')
+        ylabel('Seconds', 'FontSize', 18)
+    else
+        ylabel('Mean-Squared Error', 'FontSize', 18)
+    end
 	xlabel('Data Length (sec)', 'FontSize', 18)
 	saveas(gcf, [method,'_Median_',detect,'_',measure], 'tif')
 
