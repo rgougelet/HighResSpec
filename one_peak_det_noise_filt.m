@@ -305,14 +305,17 @@ end
 
 %% Burg
 if run_burg
-	dataLength_errors = [];
-	dataLength_rts = [];
+    orders = 3:2:25;
+	dataLength_errors = zeros(length(dataLengthSecs),length(orders), ...
+        length(phaseOffsets));
+	dataLength_rts = zeros(length(dataLengthSecs),length(orders), ...
+        length(phaseOffsets));
 	start_burg = tic;
-	for dataLengthSec = dataLengthSecs
-		dataLengthSec
+	parfor dataLengthSecInd = 1:length(dataLengthSecs)
+        dataLengthSec = dataLengthSecs(dataLengthSecInd);
+        dataLengthSamples = dataLengthSec*sampleRate;
 		order_errors = [];
 		order_rts = [];
-		orders = 3:2:25;
 		for order = orders
 			phaseOffset_errors = [];
 			phaseOffset_rts = [];
@@ -324,14 +327,14 @@ if run_burg
 				[S,freqs] = pburg(data,order,nfft,sampleRate, 'onesided');
 				phaseOffset_rt = toc;
 				phaseOffset_error = peak_det_mse(freqs,S,oscCenter1, [1000,1100]);
-				phaseOffset_errors = cat(1,phaseOffset_errors,phaseOffset_error);
-				phaseOffset_rts = cat(1,phaseOffset_rts, phaseOffset_rt);
+				phaseOffset_errors = cat(3,phaseOffset_errors,phaseOffset_error);
+				phaseOffset_rts = cat(3,phaseOffset_rts, phaseOffset_rt);
 			end
 			order_errors = cat(2,order_errors,phaseOffset_errors);
 			order_rts = cat(2,order_rts, phaseOffset_rts);
-		end
-		dataLength_errors = cat(3,dataLength_errors, order_errors);
-		dataLength_rts = cat(3,dataLength_rts, order_rts);
+        end
+        dataLength_errors(dataLengthSecInd,:,:) = order_errors;
+		dataLength_rts(dataLengthSecInd,:,:) =  order_rts;
 	end
 	burg_errors = dataLength_errors;
 	burg_rts = dataLength_rts;

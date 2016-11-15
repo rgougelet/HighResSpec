@@ -6,10 +6,10 @@ load fft_errors_one_noise_filt.mat
 load welch_errors_one_noise_filt.mat
 load med_welch_errors_one_noise_filt.mat
 load music_errors_one_noise_filt.mat
-% load esprit_errors_one_noise_filt.mat
-% load burg_errors_one_noise_filt.mat
-% load mem_errors_one_noise_filt.mat
-% load envl_errors_one_noise_filt.mat
+load esprit_errors_one_noise_filt.mat
+load burg_errors_one_noise_filt.mat
+load mem_errors_one_noise_filt.mat
+load envl_errors_one_noise_filt.mat
 
 %% FFT
 min_fft_errors = squeeze(min(fft_errors,[],2));
@@ -39,30 +39,30 @@ figure_min(dataLengthSecs,min_music_errors, 'o', [0 0 1], 'MUSIC', 'one_noise_fi
 median_music_errors = squeeze(median(music_errors,2));
 figure_median(dataLengthSecs,median_music_errors, 'o', [1 0 0], 'MUSIC', 'one_noise_filt', 'Error');
 
-% %% eSPRIT
-% min_esprit_errors = squeeze(min(min(esprit_errors,[],2)));
-% figure_min(dataLengthSecs,min_esprit_errors, 'o', [0 0 1], 'eSPRIT', 'one_noise_filt', 'Error');
-% 
-% median_esprit_errors = squeeze(median(median(esprit_errors)));
-% figure_median(dataLengthSecs,median_esprit_errors, 'o', [1 0 0], 'eSPRIT', 'one_noise_filt', 'Error');
-% 
-% %% Burg
-% min_burg_errors = squeeze(min(min(burg_errors,[],2)));
-% figure_min(dataLengthSecs,min_burg_errors, 'o', [0 0 1], 'Burg', 'one_noise_filt', 'Error');
-% 
-% median_burg_errors = squeeze(median(median(burg_errors)));
-% figure_median(dataLengthSecs,median_burg_errors, 'o', [1 0 0], 'Burg', 'one_noise_filt', 'Error');
-% 
-% %% MEM
-% min_mem_errors = squeeze(min(min(mem_errors,[],2)));
-% figure_min(dataLengthSecs,min_mem_errors, 'o', [0 0 1], 'MEM', 'one_noise_filt', 'Error');
-% 
-% median_mem_errors = squeeze(median(median(burg_errors)));
-% figure_median(dataLengthSecs,median_mem_errors, 'o', [1 0 0], 'MEM', 'one_noise_filt', 'Error');
-% 
-% %% Spec_Envl
-% min_envl_errors = squeeze(min(min(min(envl_errors,[],2),[],3),[],4));
-% figure_min(dataLengthSecs,min_envl_errors, 'o', [0 0 1], 'SpecEnvl', 'one_noise_filt', 'Error');
-% 
-% median_envl_errors = squeeze(median(median(median(envl_errors,2),3),4));
-% figure_median(dataLengthSecs,median_envl_errors, 'o', [1 0 0], 'SpecEnvl', 'one_noise_filt', 'Error');
+%% eSPRIT
+min_esprit_errors = squeeze(min(min(esprit_errors,[],2),[],3));
+figure_min(dataLengthSecs,min_esprit_errors, 'o', [0 0 1], 'eSPRIT', 'one_noise_filt', 'Error');
+
+median_esprit_errors = squeeze(median(median(esprit_errors,2),3));
+figure_median(dataLengthSecs,median_esprit_errors, 'o', [1 0 0], 'eSPRIT', 'one_noise_filt', 'Error');
+
+%% Burg
+min_burg_errors = squeeze(min(min(burg_errors,[],2),[],3));
+figure_min(dataLengthSecs,min_burg_errors, 'o', [0 0 1], 'Burg', 'one_noise_filt', 'Error');
+
+median_burg_errors = squeeze(median(median(burg_errors,2),3));
+figure_median(dataLengthSecs,median_burg_errors, 'o', [1 0 0], 'Burg', 'one_noise_filt', 'Error');
+
+%% MEM
+min_mem_errors = squeeze(min(min(mem_errors,[],1),[],2));
+figure_min(dataLengthSecs,min_mem_errors, 'o', [0 0 1], 'MEM', 'one_noise_filt', 'Error');
+
+median_mem_errors = squeeze(median(median(mem_errors,1),2));
+figure_median(dataLengthSecs,median_mem_errors, 'o', [1 0 0], 'MEM', 'one_noise_filt', 'Error');
+
+%% Spec_Envl
+min_envl_errors = squeeze(min(min(min(envl_errors,[],2),[],3),[],4));
+figure_min(dataLengthSecs,min_envl_errors, 'o', [0 0 1], 'SpecEnvl', 'one_noise_filt', 'Error');
+
+median_envl_errors = squeeze(median(median(median(envl_errors,2),3),4));
+figure_median(dataLengthSecs,median_envl_errors, 'o', [1 0 0], 'SpecEnvl', 'one_noise_filt', 'Error');

@@ -47,17 +47,17 @@ median_esprit_errors = squeeze(median(median(esprit_errors,2),3));
 figure_median(dataLengthSecs,median_esprit_errors, 'o', [1 0 0], 'eSPRIT', 'one_noise', 'Error');
 
 %% Burg
-min_burg_errors = squeeze(min(min(burg_errors,[],2)));
+min_burg_errors = squeeze(min(min(burg_errors,[],2),[],3));
 figure_min(dataLengthSecs,min_burg_errors, 'o', [0 0 1], 'Burg', 'one_noise', 'Error');
 
-median_burg_errors = squeeze(median(median(burg_errors)));
+median_burg_errors = squeeze(median(median(burg_errors,2),3));
 figure_median(dataLengthSecs,median_burg_errors, 'o', [1 0 0], 'Burg', 'one_noise', 'Error');
 
 %% MEM
-min_mem_errors = squeeze(min(min(mem_errors,[],2)));
+min_mem_errors = squeeze(min(min(mem_errors,[],1),[],2));
 figure_min(dataLengthSecs,min_mem_errors, 'o', [0 0 1], 'MEM', 'one_noise', 'Error');
 
-median_mem_errors = squeeze(median(median(burg_errors)));
+median_mem_errors = squeeze(median(median(mem_errors,1),2));
 figure_median(dataLengthSecs,median_mem_errors, 'o', [1 0 0], 'MEM', 'one_noise', 'Error');
 
 %% Spec_Envl
